@@ -69,7 +69,7 @@ and open the template in the editor.
                     });
                 });
                 $("#re-pwd").change(function () {
-                    if ($("#re-pwd").val() === $("#pwd").val()) {
+                    if ($("#re-pwd").val() !== $("#pwd").val()) {
                         $("#checkpassword").attr("class", "glyphicon glyphicon-remove");
                     } else {
                         $("#checkpassword").attr("class", "glyphicon glyphicon-ok");
