@@ -2,6 +2,21 @@ use Rack::Static,
   :urls => ["/images", "/js", "/css", "/bootstrap-3.3.6-dist", "/font-awesome-4.5.0", "/private", "/Resource"],
   :root => "public"
 
+map "/" do
+run lambda { |env|
+  [
+    200,
+    {
+      'Content-Type'  => 'text/html',
+      'Cache-Control' => 'public, max-age=86400'
+    },
+    File.open('public/home.html', File::RDONLY)
+	 
+
+  ]
+}
+end
+
 map "/home" do
 run lambda { |env|
   [
