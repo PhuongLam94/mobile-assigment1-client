@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Take a date - Picture</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="font-awesome-4.5.0/css/font-awesome.min.css">
+
+        <script src="js/jquery-1.12.1.min.js"></script>
+        <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+
+        <script>
+            $().ready(function () {
+                if (!window.sessionStorage.userauth) {
+                    window.location = "home";
+                }
+                $("#header").load('private/header.html');
+                var userAuth = window.sessionStorage.getItem("userauth");
+                var userid = window.sessionStorage.getItem("userid");
+                var pictureid = window.sessionStorage.getItem("pictureid");
+                var currentuserid = window.sessionStorage.getItem("currentuserid");
+                if (userid === currentuserid) {
+                    $("#btnDelete").show();
+                }
+                $(document).ajaxStart(function () {
+                    $("#loading-image").show();
+                    $("button").prop("disabled", true);
+                });
+                $(document).ajaxStop(function () {
+                    $("#loading-image").hide();
+                    $("button").prop("disabled", false);
+                });
+                $.ajax({
+                    url: "https://intense-chamber-28418.herokuapp.com/getservice/getpicture/" + currentuserid + "/" + pictureid,
+                    method: "GET",
+                    xhrFields: {
+                        withCredentials: false
+                    },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        if ("message" in data) {
+                            $("#msg").text(data.message);
+                            $("#msg").show();
+                            setTimeout(function () {
+                                $("#msg").hide();
+                            }, 5000);
+                        } else {
+                            if (data.prev !== 0) {
+                                $("#btnLeft").attr("picture-id", data.prev);
+                                $("#btnLeft").show();
+                            }
+                            if (data.next !== 0) {
+                                $("#btnRight").attr("picture-id", data.next);
+                                $("#btnRight").show();
+                            }
+                            $("#picture").attr("src", data.content);
+                            $("#description").text(data.description);
+
+                        }
+                    }
+                });
+                $("#btnBack").click(function () {
+                    window.location = "list-picture";
+                });
+                $("#btnDelete").click(function () {
+                    var res = confirm("Do you really want to delete this picture?");
+                    if (res) {
+                        $.ajax({
+                            url: "https://intense-chamber-28418.herokuapp.com/deleteservice/deletepicture/" + currentuserid + "/" + pictureid,
+                            method: "DELETE",
+                            xhrFields: {
+                                withCredentials: false
+                            },
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+                            },
+                            success: function (data) {
+                                if (data.message === "Successful") {
+                                    alert("Picture deleted successfully, click OK to go back to list picture");
+                                    window.location = "list-picture";
+                                } else {
+                                    alert("Something's wrong");
+                                }
+                            }
+                        });
+                    }
+                });
+                $("#btnLeft").click(function () {
+                    sessionStorage.pictureid = $(this).attr("picture-id");
+                    window.location = "picture";
+                });
+                $("#btnRight").click(function () {
+                    sessionStorage.pictureid = $(this).attr("picture-id");
+                    window.location = "picture";
+                });
+                $("#picture").load(function () {
+                    $("#btnLeft").css("margin-top", $("#picture").parent().height() / 2);
+                    $("#btnRight").css("margin-top", $("#picture").parent().height() / 2);
+                });
+            });
+        </script>
+
+    </head>
+    <body>
+        <div id="header"></div>
+        <div class="container">
+            <div id="msg"  style="color: red; font-weight: bold; display: none" align="center">
+            </div>
+            <div class="jumbotron">
+                <h3 id="title">Picture</h3>
+            </div>
+            <div id="picture-area" class="col-md-12">
+
+                <div class="col-md-12">
+                    <div class="col-md-1 button">
+                        <button  style='display: none;' id="btnLeft" class="btn btn-default"><span class="glyphicon glyphicon-arrow-left"></span></button>
+                    </div>
+                    <div class="col-md-10" align="center">
+                        <img id="picture" style="height: 50%; width: 50%;" src="Resource/loading_spinner.gif" alt="" />
+                    </div>
+                    <div class="col-md-1 button">
+                        <button  style='display: none;' id="btnRight" class="btn btn-default"><span class="glyphicon glyphicon-arrow-right"></span></button>
+                    </div>
+                </div>
+
+            </div>
+            <div id="description" class="col-md-12" style="text-align: center; padding: 10px;"></div>
+            <div id="buttons" align="right" style="float: right;">
+                <button id="btnBack" class="btn btn-primary">Back</button>
+                <button id="btnDelete" class="btn btn-danger" style="display:none;">Delete</button>
+            </div>
+            <div  id="loading-image" align="center" style="display: none; float: right">
+                <img style="height: 40px; width: 40px" alt="loading" src="Resource/loading_spinner.gif" />
+            </div>
+        </div>
+    </body>
+</html>

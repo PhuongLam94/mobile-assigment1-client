@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Take a date - Sign up</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="font-awesome-4.5.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.css" type="text/css"/>
+
+        <script src="js/jquery-1.12.1.min.js"></script>
+
+        <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+
+        <script>
+            $().ready(function () {
+                //var users1 = [{id: "1", username: "phuonglam", name: "Lam Minh Phuong", email: "abc@example.com", status: "1"}, {id: "2",username: "huongnguyen", name: "Nguyen Thi Huong", email: "abc2@example.com", status: "1"}, {id: "3", username: "huela", name: "La Van Hue", email: "abc3@example.com", status: "1"}, {id: "4", username: "tienngo", name: "Ngo Thuy Tien", email: "abc4@example.com", status: "1"}];
+                window.sessionStorage.clear();
+                $(document).ajaxStart(function () {
+                    $("#loading-image").show();
+                    $("button").prop("disabled", true);
+                });
+                $(document).ajaxStop(function () {
+                    $("#loading-image").hide();
+                    $("button").prop("disabled", false);
+                });
+                $("#username").change(function () {
+                    $.ajax({
+                        url: "https://intense-chamber-28418.herokuapp.com/getservice/checkusername/" + $("#username").val(),
+                        method: "GET",
+                        xhrFields: {
+                            withCredentials: false
+                        },
+                        beforeSend: function () {
+                            $("#checkusername").attr("class", "glyphicon glyphicon-refresh");
+                        }
+
+                    }).done(function (data) {
+                        if (data.message === "Invalid") {
+                            $("#checkusername").attr("class", "glyphicon glyphicon-remove");
+                        } else {
+                            $("#checkusername").attr("class", "glyphicon glyphicon-ok");
+                        }
+                    });
+                });
+                $("#email").change(function () {
+                    $.ajax({
+                        url: "https://intense-chamber-28418.herokuapp.com/getservice/checkuseremail/" + $("#email").val(),
+                        method: "GET",
+                        xhrFields: {
+                            withCredentials: false
+                        },
+                        beforeSend: function () {
+                            $("#checkemail").attr("class", "glyphicon glyphicon-refresh");
+                        }
+
+                    }).done(function (data) {
+                        if (data.message === "Invalid") {
+                            $("#checkemail").attr("class", "glyphicon glyphicon-remove");
+                        } else {
+                            $("#checkemail").attr("class", "glyphicon glyphicon-ok");
+                        }
+                    });
+                });
+                $("#re-pwd").change(function () {
+                    if ($("#re-pwd").val() === $("#pwd").val()) {
+                        $("#checkpassword").attr("class", "glyphicon glyphicon-remove");
+                    } else {
+                        $("#checkpassword").attr("class", "glyphicon glyphicon-ok");
+                    }
+                });
+                $("#btnSubmit").click(function (event) {
+                    event.preventDefault();
+                    if (checkForm()) {
+                        var userData = {
+                            email: $("#email").val(),
+                            username1: $("#username").val(),
+                            name: $("#name").val(),
+                            status: 1,
+                            test2: $("#phone-number").val(),
+                            address: $("#address").val(),
+                            height: $("#height").val(),
+                            weight: $("#weight").val(),
+                            avatar: "",
+                            password: $("#pwd").val(),
+                            gender: $("input[type='radio']:checked").val() === "female" ? 1 : 2,
+                            birthday: $("#birthday").val() === "" ? null : $("#birthday").val(),
+                            message: "",
+                            test: $("#username").val(),
+                        };
+                        var formData = new FormData();
+                        formData.append("image", $("#picture")[0].files[0]);
+                        $.ajax({
+                            url: "https://api.imgur.com/3/image",
+                            type: "POST",
+                            datatype: "json",
+                            headers: {
+                                "Authorization": "Client-ID 142cd168e236fc9"
+                            },
+                            data: formData,
+                            success: function (response) {
+                                console.log(response);
+                                userData.avatar = response.data.link;
+                                var photo_hash = response.data.deletehash;
+
+                                $.ajax({
+                                    url: "https://intense-chamber-28418.herokuapp.com/postservice/user/add",
+                                    type: "POST",
+                                    xhrFields: {
+                                        withCredentials: false
+                                    },
+                                    contentType: "application/json; charset=utf-8",
+                                    data: JSON.stringify(userData),
+                                    beforeSend: function (xhr) {
+                                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa('admin:admin'));
+                                    }
+                                }).done(function (data) {
+                                    if (data.message === "Successful") {
+                                        window.alert("User created, click OK to go to log in page");
+                                        window.location = "home";
+                                    }
+                                });
+                            },
+                            cache: false,
+                            contentType: false,
+                            processData: false
+                        });
+                    }
+
+                });
+
+            });
+            var checkForm = function () {
+                if ($("#username").val() === "") {
+                    $("#msg").text("Please enter username!");
+                    $("#msg").show();
+                    setTimeout(function () {
+                        $("#msg").hide()
+                    }, 5000)
+                    return false;
+                }
+                if ($("#checkusername").attr("class") === "glyphicon glyphicon-remove") {
+                    $("#msg").text("Invalid username!");
+                    $("#msg").show();
+                    setTimeout(function () {
+                        $("#msg").hide()
+                    }, 5000)
+                    return false;
+                }
+                if ($("#checkpassword").attr("class") === "glyphicon glyphicon-remove") {
+                    $("#msg").text("Password not match!");
+                    $("#msg").show();
+                    setTimeout(function () {
+                        $("#msg").hide()
+                    }, 5000)
+                    return false;
+                }
+                if ($("#email").val() === "") {
+                    $("#msg").text("Please enter email!");
+                    $("#msg").show();
+                    setTimeout(function () {
+                        $("#msg").hide()
+                    }, 5000)
+                    return false;
+                }
+                if ($("#checkemail").attr("class") === "glyphicon glyphicon-remove") {
+                    $("#msg").text("Invalid email!");
+                    $("#msg").show();
+                    setTimeout(function () {
+                        $("#msg").hide()
+                    }, 5000)
+                    return false;
+                }
+                if ($("#password").val() === "") {
+                    $("#msg").text("Please enter password!");
+                    $("#msg").show();
+                    setTimeout(function () {
+                        $("#msg").hide()
+                    }, 5000)
+                    return false;
+                }
+                if ($("#name").val() === "") {
+                    $("#msg").text("Please enter name!");
+                    $("#msg").show();
+                    setTimeout(function () {
+                        $("#msg").hide()
+                    }, 5000)
+                    return false;
+                }
+                return true;
+            }
+            var openFile = function (event) {
+                var input = event.target;
+                var reader = new FileReader();
+                reader.onload = function () {
+                    var dataURL = reader.result;
+                    var output = document.getElementById('output');
+                    output.src = dataURL;
+                };
+                reader.readAsDataURL(input.files[0]);
+            };
+            function postToImgur() {
+                var formData = new FormData();
+                formData.append("image", $("#picture").files[0]);
+                $.ajax({
+                    url: "https://api.imgur.com/3/image",
+                    type: "POST",
+                    datatype: "json",
+                    headers: {
+                        "Authorization": "Client-ID 142cd168e236fc9"
+                    },
+                    data: formData,
+                    success: function (response) {
+                        console.log(response);
+                        var photo = response.data.link;
+                        var photo_hash = response.data.deletehash;
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            }
+
+        </script>
+    </head>
+    <body>
+        <div id="header"></div>
+        <div class="container">
+            <div id="msg" style="color: red; font-weight: bold; display: none" align="center"></div>
+            <div class="jumbotron">
+                <h3 id="title">Sign up</h3>
+            </div>
+            <form role="form" id="form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" class="form-control" id="username" style="float: left;">
+                    <span id="checkusername"></span>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email address:</label>
+                    <input type="email" class="form-control" id="email" style="float: left;">
+                    <span id="checkemail"></span>
+                </div>
+                <div class="form-group">
+                    <label for="pwd">Password:</label>
+                    <input type="password" class="form-control" id="pwd">
+                </div>
+                <div class="form-group">
+                    <label for="re-pwd">Retype password:</label>
+                    <input type="password" class="form-control" id="re-pwd" style="float:left;">
+                    <span id="checkpassword"></span>
+                </div>
+                <div class="form-group">
+                    <label for="picture">Avatar: </label>
+                    <div>
+                        <img id='output' style="width: 91%; margin-top: 2px; height: 85px; width: 85px" class="main_img"
+                             alt="" src=""/>
+                    </div>
+                    <div>
+                        <input type="file" class="form-control" id="picture" accept="image/*" onchange='openFile(event)'>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" id="name">
+                </div>
+                <div class="form-group">
+                    <label for="female">Gender:</label>
+                    <label class="radio-inline"><input type="radio" name="gender" id="female" value="female">Female</label>
+                    <label class="radio-inline"><input type="radio" name="gender" id="male" value="male">Male</label>    
+                </div>
+                <div class="form-group">
+                    <label for="birthday">Birthday:</label>
+                    <input type='date' data-format="dd/MM/yyyy" class="form-control" id="birthday"/>
+
+                </div>
+                <div class="form-group">
+                    <label for="phone-number">Phone number:</label>
+                    <input type="text" class="form-control" id="phone-number">
+                </div>
+                <div class="form-group">
+                    <label for="address">Address:</label>
+                    <input type="text" class="form-control" id="address">
+                </div>
+                <div class="form-group">
+                    <label for="height">Height:</label>
+                    <input type="text" class="form-control" id="height">
+                </div>
+                <div class="form-group">
+                    <label for="weight">Weight</label>
+                    <input type="text" class="form-control" id="weight">
+                </div>
+
+                <div align="right" style="float: right;">
+                    <button class="btn btn-primary" id="btnSubmit">Create</button>
+                </div>
+                <div  id="loading-image" align="center" style="display: none; float: right">
+                    <img style="height: 40px; width: 40px" alt="loading" src="Resource/loading_spinner.gif" />
+                </div>
+            </form>
+
+        </div>
+
+    </body>
+</html>

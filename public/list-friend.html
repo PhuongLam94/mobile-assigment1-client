@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Take a date - Friend list</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="font-awesome-4.5.0/css/font-awesome.min.css">
+
+        <script src="js/jquery-1.12.1.min.js"></script>
+        <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+
+        <style>
+            a:hover{
+                cursor: pointer;
+            }
+        </style>
+        <script>
+            $().ready(function () {
+
+                if (!window.sessionStorage.userauth) {
+                    window.location = "home";
+                }
+                $("#header").load('private/header.html');
+                var userAuth = window.sessionStorage.getItem("userauth");
+                var userid = window.sessionStorage.getItem("userid");
+                $(document).ajaxStart(function () {
+                    $("#loading-image").show();
+                    $("button").prop("disabled", true);
+                });
+                $(document).ajaxStop(function () {
+                    $("#loading-image").hide();
+                    $("button").prop("disabled", false);
+                });
+                $.ajax({
+                    url: "https://intense-chamber-28418.herokuapp.com/getservice/getfriend/" + userid,
+                    method: "GET",
+                    xhrFields: {
+                        withCredentials: false
+                    },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        if ("message" in data) {
+                            $("#msg").text(data.message);
+                            $("#msg").show();
+                            setTimeout(function () {
+                                $("#msg").hide();
+                            }, 5000);
+                        } else {
+                            if (data.length === 0) {
+                                $("#msg").text("No friend found");
+                                $("#msg").show();
+                                setTimeout(function () {
+                                    $("#msg").hide();
+                                }, 5000);
+                            }
+                            ;
+                            $.each(data, function (index, friend) {
+                                var $avatar = $("<img/>", {
+                                    class: "col-md-4 avatar",
+                                    src: friend.avatar,
+                                    alt: "Picture not found",
+                                    style: "height: 100px; width: 100px"
+                                });
+                                var $name = $("<a/>", {
+                                    class: "col-md-6 name",
+                                    style: "margin-top: 35px; font-size: 25px;"
+                                }).text(friend.name);
+                                
+                                var $div = $("<div/>", {
+                                    id: friend.id,
+                                    class: "col-md-5 col-md-offset-1 alert alert-success"
+                                }).append($avatar).append($name);
+                                if (friend.friendStatus === 3) {
+                                    var $buttons = $("<div/>", {
+                                        class: "col-md-2 buttons"
+                                    });
+                                    var $button = $("<button/>", {
+                                        id: "accept-btn",
+                                        class: "btn btn-primary",
+                                        style: "margin-top: 15px;"
+                                    }).text("Accept");
+                                    $($buttons).append($button);
+                                    var $button2 = $("<button/>", {
+                                        id: "deny-btn",
+                                        class: "btn btn-danger",
+                                        style: "margin-top: 5px;"
+                                    }).text("Delete");
+                                    $($buttons).append($button2);
+                                    $div.append($buttons);
+                                }
+                                $("#friend-area").append($div);
+                            })
+                        }
+                    }
+                });
+                $("body").on("click", ".name", function (event) {
+                    event.preventDefault();
+                    sessionStorage.currentuserid = $($(event.target).parent()).attr("id");
+                    window.location = "profile";
+                });
+                $("body").on("click", "#accept-btn", function (event) {
+                    setFriendStatus(userid, $($($(event.target).parent()).parent()).attr("id"), 1, userAuth);
+                });
+                $("body").on("click", "#deny-btn", function (event) {
+                    setFriendStatus(userid, $($($(event.target).parent()).parent()).attr("id"), -1, userAuth);
+                });
+                $("#btnBack").click(function () {
+                    sessionStorage.currentuserid = userid;
+                    window.location = "profile";
+                });
+            });
+            var setFriendStatus = function (user1, user2, status, userAuth) {
+                $.ajax({
+                    url: "https://intense-chamber-28418.herokuapp.com/putservice/setfriendstatus/" + user1 + "/" + user2 + "/" + status,
+                    type: "PUT",
+                    xhrFields: {
+                        withCredentials: false
+                    },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+                    }
+                }).done(function (data) {
+                    if (data.message === "Successful") {
+                        window.location = "list-friend";
+                    }
+                });
+            }
+        </script>
+
+    </head>
+    <body>
+        <div id="header"></div>
+        <div class="container">
+            <div id="msg" style="color: red; font-weight: bold; display: none" align="center">
+            </div>
+            <div class="jumbotron">
+                <h3 id="title">List friends</h3>
+            </div>
+            <div id="friend-area"></div>
+            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1">
+                <img style="height: 75px; width: 75px" alt="loading" src="Resource/loading_spinner.gif" />
+            </div>
+            <div align="right" class="col-md-12">
+                <button class="btn btn-success" id="btnBack">Back</button>
+            </div>
+        </div>
+    </body>
+</html>

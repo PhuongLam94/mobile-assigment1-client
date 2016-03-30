@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Take a date - List pictures</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="font-awesome-4.5.0/css/font-awesome.min.css">
+
+        <script src="js/jquery-1.12.1.min.js"></script>
+        <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+        
+        <style>
+            .picture-tag:hover{
+                cursor: pointer;
+            }
+        </style>
+        <script>
+
+            $().ready(function () {
+                if (!window.sessionStorage.userauth) {
+                    window.location = "home";
+                }
+                $("#header").load('private/header.html');
+                var userAuth = window.sessionStorage.getItem("userauth");
+                var userid = window.sessionStorage.getItem("userid");
+                var currentuserid = window.sessionStorage.getItem("currentuserid");
+                if (userid === currentuserid) {
+                    $("#btnAdd").show();
+                }
+                $(document).ajaxStart(function () {
+                    $("#loading-image").show();
+                    $("button").prop("disabled", true);
+                });
+                $(document).ajaxStop(function () {
+                    $("#loading-image").hide();
+                    $("button").prop("disabled", false);
+                });
+                $.ajax({
+                    url: "https://intense-chamber-28418.herokuapp.com/getservice/getpicture/" + currentuserid + "/all",
+                    method: "GET",
+                    xhrFields: {
+                        withCredentials: false
+                    },
+                    beforeSend: function (xhr) {
+                        console.log("abc");
+                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        if ("message" in data) {
+                            $("#msg").text(data.message);
+                            $("#msg").show();
+                            setTimeout(function () {
+                                $("#msg").hide();
+                            }, 5000);
+                        } else {
+                            if (data.length === 0) {
+                                $("#msg").text("No picture found");
+                                $("#msg").show();
+                                setTimeout(function () {
+                                    $("#msg").hide();
+                                }, 5000);
+                            };
+                            $.each(data, function (index, picture) {
+                                console.log(picture);
+                                var $tag = $("<img/>", {
+                                    id: picture.id,
+                                    class: "col-md-4 col-sm-6 col-xs-8 col-xs-off-set-2 picture-tag",
+                                    src: picture.content,
+                                    alt: "Picture not found",
+                                    style: "height: 200px; width: 300px"
+                                });
+                                $("#picture-area").append($tag);
+                            })
+                        }
+                    }
+                });
+                $("body").on("click", ".picture-tag", function(){
+                    sessionStorage.pictureid=$(this).attr("id");
+                    window.location = "picture";
+                })
+                $("#btnBack").click(function () {
+                    window.location = "profile";
+                });
+                $("#btnAdd").click(function () {
+                    window.location = "create-picture";
+                });
+            });
+
+        </script>
+    </head>
+    <body>
+        <div id="header"></div>
+        <div class="container">
+            <div id="msg" style="color: red; font-weight: bold; display: none" align="center">
+            </div>
+            <div class="jumbotron">
+                <h3 id="title">List pictures</h3>
+            </div>
+            <div id="picture-area"></div>
+            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1">
+                <img style="height: 75px; width: 75px" alt="loading" src="Resource/loading_spinner.gif" />
+            </div>
+            <div align="right" class="col-md-12">
+                <button class="btn btn-primary" id="btnAdd" style="display:none;">Add new picture</button>
+                <button class="btn btn-success" id="btnBack">Back</button>
+            </div>
+        </div>
+    </body>
+</html>

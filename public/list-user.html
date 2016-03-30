@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Take a date - User list</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="font-awesome-4.5.0/css/font-awesome.min.css">
+
+        <script src="js/jquery-1.12.1.min.js"></script>
+        <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+
+        <style>
+            a:hover{
+                cursor: pointer;
+            }
+        </style>
+        <script>
+            $().ready(function () {
+
+                if (!window.sessionStorage.userauth) {
+                    window.location = "home";
+                }
+                $("#header").load('private/header.html');
+                var userAuth = window.sessionStorage.getItem("userauth");
+                var userid = window.sessionStorage.getItem("userid");
+                $(document).ajaxStart(function () {
+                    $("#loading-image").show();
+                    $("button").prop("disabled", true);
+                });
+                $(document).ajaxStop(function () {
+                    $("#loading-image").hide();
+                    $("button").prop("disabled", false);
+                });
+                $.ajax({
+                    url: "https://intense-chamber-28418.herokuapp.com/getservice/getuser/all",
+                    method: "GET",
+                    xhrFields: {
+                        withCredentials: false
+                    },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        if ("message" in data) {
+                            setMessage(data.message);
+                        } else {
+                            $.each(data, function (index, friend) {
+                                var $avatar = $("<img/>", {
+                                    class: "col-md-4 avatar",
+                                    src: friend.avatar,
+                                    alt: "Picture not found",
+                                    style: "height: 100px; width: 100px"
+                                });
+                                var $name = $("<a/>", {
+                                    class: "col-md-5 name",
+                                    style: "margin-top: 35px; font-size: 23px;"
+                                }).text(friend.name);
+
+                                var $div = $("<div/>", {
+                                    id: friend.id,
+                                    class: "col-md-5 col-md-offset-1 alert alert-success"
+                                }).append($avatar).append($name);
+                                var $buttons = $("<div/>", {
+                                    class: "col-md-3 buttons"
+                                });
+                                var $button2 = $("<button/>", {
+                                    class: "btn btn-danger reset-btn",
+                                    style: "margin-top: 5px;"
+                                }).text("Reset password");
+                                $($buttons).append($button2);
+                                if (friend.status !== 3) {
+                                    var $button = $("<button/>", {
+                                        class: "btn btn-primary admin-btn",
+                                        style: "margin-top: 15px;"
+                                    }).text("Set admin");
+                                    $($buttons).append($button);
+                                }
+                                $div.append($buttons);
+                                $("#friend-area").append($div);
+                            });
+                        }
+                    }
+                });
+
+                $("body").on("click", ".name", function (event) {
+                    event.preventDefault();
+                    sessionStorage.currentuserid = $($(event.target).parent()).attr("id");
+                    window.location = "profile";
+                });
+                $("body").on("click", ".admin-btn", function (event) {
+                    var res = confirm("Do you really want to set this user admin?")
+                    if (res) {
+                        $.ajax({
+                            url: "https://intense-chamber-28418.herokuapp.com/putservice/setAdmin/" + $(event.target).parent().parent().attr("id"),
+                            method: "PUT",
+                            xhrFields: {
+                                withCredentials: false
+                            },
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+                            },
+                            success: function (data) {
+                                if (data.message === "Successful") {
+                                    setMessage("Set admin successfully");
+                                    $(event.target).hide();
+                                }
+                            }
+                        });
+                    }
+                });
+                $("body").on("click", ".reset-btn", function (event) {
+                    var res = confirm("Do you really want to reset this user's password");
+                    if (res) {
+                        $.ajax({
+                            url: "https://intense-chamber-28418.herokuapp.com/putservice/resetPassword/" + $(event.target).parent().parent().attr("id"),
+                            method: "PUT",
+                            xhrFields: {
+                                withCredentials: false
+                            },
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+                            },
+                            success: function (data) {
+                                if (data.message === "Successful") {
+                                    setMessage("Reset password successfully");
+                                }
+                            }
+                        });
+                    }
+                });
+                $("#btnBack").click(function () {
+                    sessionStorage.currentuserid = userid;
+                    window.location = "profile";
+                });
+            });
+            var setFriendStatus = function (user1, user2, status, userAuth) {
+                $.ajax({
+                    url: "https://intense-chamber-28418.herokuapp.com/putservice/setfriendstatus/" + user1 + "/" + user2 + "/" + status,
+                    type: "PUT",
+                    xhrFields: {
+                        withCredentials: false
+                    },
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+                    }
+                }).done(function (data) {
+                    if (data.message === "Successful") {
+                        window.location = "list-friend";
+                    }
+                });
+            }
+            var setMessage = function (msg) {
+                $("#msg").text(msg);
+                $("#msg").show();
+                setTimeout(function () {
+                    $("#msg").hide();
+                }, 5000);
+            }
+        </script>
+
+    </head>
+    <body>
+        <div id="header"></div>
+        <div class="container">
+            <div id="msg" style="color: red; font-weight: bold; display: none" align="center">
+            </div>
+            <div class="jumbotron">
+                <h3 id="title">List users</h3>
+            </div>
+            <div id="friend-area"></div>
+            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1">
+                <img style="height: 75px; width: 75px" alt="loading" src="Resource/loading_spinner.gif" />
+            </div>
+            <div align="right" class="col-md-12">
+                <button class="btn btn-success" id="btnBack">Back</button>
+            </div>
+        </div>
+    </body>
+</html>
