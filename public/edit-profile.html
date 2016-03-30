@@ -37,7 +37,7 @@ and open the template in the editor.
                     $("button").prop("disabled", false);
                 });
                 $.ajax({
-                    url: "https://intense-chamber-28418.herokuapp.com/getservice/getuser/" + userid,
+                    url: "https://takeadate-ws.herokuapp.com/getservice/getuser/" + userid,
                     type: "GET",
                     xhrFields: {
                         withCredentials: false
@@ -104,7 +104,7 @@ and open the template in the editor.
                                     newPassword: newPwd
                                 };
                                 $.ajax({
-                                    url: "https://intense-chamber-28418.herokuapp.com/putservice/setPassword",
+                                    url: "https://takeadate-ws.herokuapp.com/putservice/setPassword",
                                     type: "PUT",
                                     xhrFields: {
                                         withCredentials: false
@@ -198,7 +198,7 @@ and open the template in the editor.
             }
             var editUser = function (userData, userAuth) {
                 $.ajax({
-                    url: "https://intense-chamber-28418.herokuapp.com/putservice/user/edit",
+                    url: "https://takeadate-ws.herokuapp.com/putservice/user/edit",
                     type: "PUT",
                     xhrFields: {
                         withCredentials: false

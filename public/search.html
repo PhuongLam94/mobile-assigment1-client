@@ -53,7 +53,7 @@ and open the template in the editor.
                 $("#btnSearch").click(function (event) {
                     event.preventDefault();
                     $("#friend-area").html("");
-                    getListUser("https://intense-chamber-28418.herokuapp.com/getservice/searchuser/" + userid + "/" + $("#name").val());
+                    getListUser("https://takeadate-ws.herokuapp.com/getservice/searchuser/" + userid + "/" + $("#name").val());
                 });
                 $("#btnNear").click(function (event) {
                     event.preventDefault();
@@ -63,13 +63,13 @@ and open the template in the editor.
                         navigator.geolocation.getCurrentPosition(function (pos) {
                             lon = pos.coords.longitude;
                             lat = pos.coords.latitude;
-                            getListUser("https://intense-chamber-28418.herokuapp.com/getservice/getnear/" + userid + "/" + lon+"/"+lat);
+                            getListUser("https://takeadate-ws.herokuapp.com/getservice/getnear/" + userid + "/" + lon+"/"+lat);
                         }, function (errMsg) {
                             console.log(JSON.stringify(errMsg));
                             navigator.geolocation.getCurrentPosition(function (pos) {
                                 lon = pos.coords.longitude;
                                 lat = pos.coords.latitude;
-                                getListUser("https://intense-chamber-28418.herokuapp.com/getservice/getnear/" + userid + "/" + lon+"/"+lat);
+                                getListUser("https://takeadate-ws.herokuapp.com/getservice/getnear/" + userid + "/" + lon+"/"+lat);
                             }, function (errMsg) {
                                 console.log(JSON.stringify(errMsg));
                             }, {

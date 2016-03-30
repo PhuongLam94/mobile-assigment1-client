@@ -32,7 +32,7 @@ and open the template in the editor.
                 });
                 $("#username").change(function () {
                     $.ajax({
-                        url: "https://intense-chamber-28418.herokuapp.com/getservice/checkusername/" + $("#username").val(),
+                        url: "https://takeadate-ws.herokuapp.com/getservice/checkusername/" + $("#username").val(),
                         method: "GET",
                         xhrFields: {
                             withCredentials: false
@@ -51,7 +51,7 @@ and open the template in the editor.
                 });
                 $("#email").change(function () {
                     $.ajax({
-                        url: "https://intense-chamber-28418.herokuapp.com/getservice/checkuseremail/" + $("#email").val(),
+                        url: "https://takeadate-ws.herokuapp.com/getservice/checkuseremail/" + $("#email").val(),
                         method: "GET",
                         xhrFields: {
                             withCredentials: false
@@ -110,7 +110,7 @@ and open the template in the editor.
                                 var photo_hash = response.data.deletehash;
 
                                 $.ajax({
-                                    url: "https://intense-chamber-28418.herokuapp.com/postservice/user/add",
+                                    url: "https://takeadate-ws.herokuapp.com/postservice/user/add",
                                     type: "POST",
                                     xhrFields: {
                                         withCredentials: false

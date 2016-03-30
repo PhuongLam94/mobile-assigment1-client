@@ -38,7 +38,7 @@ and open the template in the editor.
                     $("button").prop("disabled", false);
                 });
                 $.ajax({
-                    url: "https://intense-chamber-28418.herokuapp.com/getservice/getpicture/" + currentuserid + "/" + pictureid,
+                    url: "https://takeadate-ws.herokuapp.com/getservice/getpicture/" + currentuserid + "/" + pictureid,
                     method: "GET",
                     xhrFields: {
                         withCredentials: false
@@ -76,7 +76,7 @@ and open the template in the editor.
                     var res = confirm("Do you really want to delete this picture?");
                     if (res) {
                         $.ajax({
-                            url: "https://intense-chamber-28418.herokuapp.com/deleteservice/deletepicture/" + currentuserid + "/" + pictureid,
+                            url: "https://takeadate-ws.herokuapp.com/deleteservice/deletepicture/" + currentuserid + "/" + pictureid,
                             method: "DELETE",
                             xhrFields: {
                                 withCredentials: false

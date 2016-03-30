@@ -40,7 +40,7 @@ and open the template in the editor.
                     $("button").prop("disabled", false);
                 });
                 $.ajax({
-                    url: "https://intense-chamber-28418.herokuapp.com/getservice/getfriend/" + userid,
+                    url: "https://takeadate-ws.herokuapp.com/getservice/getfriend/" + userid,
                     method: "GET",
                     xhrFields: {
                         withCredentials: false
@@ -122,7 +122,7 @@ and open the template in the editor.
             });
             var setFriendStatus = function (user1, user2, status, userAuth) {
                 $.ajax({
-                    url: "https://intense-chamber-28418.herokuapp.com/putservice/setfriendstatus/" + user1 + "/" + user2 + "/" + status,
+                    url: "https://takeadate-ws.herokuapp.com/putservice/setfriendstatus/" + user1 + "/" + user2 + "/" + status,
                     type: "PUT",
                     xhrFields: {
                         withCredentials: false

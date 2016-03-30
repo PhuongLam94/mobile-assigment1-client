@@ -65,7 +65,7 @@ and open the template in the editor.
                     setFriendStatus(userid, currentuserid, -1, userAuth);
                 });
                 $.ajax({
-                    url: "https://intense-chamber-28418.herokuapp.com/getservice/getuser/" + currentuserid,
+                    url: "https://takeadate-ws.herokuapp.com/getservice/getuser/" + currentuserid,
                     type: "GET",
                     xhrFields: {
                         withCredentials: false
@@ -171,7 +171,7 @@ and open the template in the editor.
             };
             var setFriendStatus = function (user1, user2, status, userAuth) {
                 $.ajax({
-                    url: "https://intense-chamber-28418.herokuapp.com/putservice/setfriendstatus/" + user1 + "/" + user2 + "/" + status,
+                    url: "https://takeadate-ws.herokuapp.com/putservice/setfriendstatus/" + user1 + "/" + user2 + "/" + status,
                     type: "PUT",
                     xhrFields: {
                         withCredentials: false
