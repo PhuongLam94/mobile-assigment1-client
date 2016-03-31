@@ -116,19 +116,19 @@ and open the template in the editor.
                             ;
                             $.each(data, function (index, friend) {
                                 var $avatar = $("<img/>", {
-                                    class: "col-md-4 avatar",
+                                    class: "col-md-4 col-sm-12 col-xs-12 avatar",
                                     src: friend.avatar,
                                     alt: "Picture not found",
                                     style: "height: 100px; width: 100px"
                                 });
                                 var $name = $("<a/>", {
-                                    class: "col-md-8 name",
+                                    class: "col-md-8 col-sm-12 col-xs-12 name",
                                     style: "margin-top: 35px; font-size: 25px;"
                                 }).text(friend.name);
 
                                 var $div = $("<div/>", {
                                     id: friend.id,
-                                    class: "col-md-5 col-md-offset-1 alert alert-success"
+                                    class: "col-md-5 col-md-offset-1 col-sm-12 col-xs-12 alert alert-success"
                                 }).append($avatar).append($name);
                                 $("#friend-area").append($div);
                             })
@@ -147,25 +147,25 @@ and open the template in the editor.
             <div class="jumbotron">
                 <h3 id="title">Search</h3>
             </div>
-            <div class="col-md-12">
-                <div class="form-group col-md-8">
-                    <div class="col-md-11">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="form-group col-md-8 col-xs-8 col-sm-8">
+                    <div class="col-md-10 col-xs-10 col-sm-10">
                         <input type="text" class="form-control" id="name" placeholder="Type name to search here">
-                    
+
                     </div>
-                    <button class="btn btn-default col-md-1" id="btnSearch">
+                    <button class="btn btn-default col-md-2 col-xs-2 col-sm-2" id="btnSearch">
                         <span class="glyphicon glyphicon-search"></span>
                     </button>
                 </div>
-                <div class="col-md-4">
-                    <button class="btn btn-info" id="btnNear">Find people near me</button>    
+                <div class="col-md-4 col-xs-4 col-sm-4">
+                    <button class="btn btn-info" id="btnNear">Find people near me</button>
                 </div>
             </div>
             <div id="friend-area"></div>
-            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1">
+            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1 col-xs-10 col-sm-10 col-offset-xs-1 col-offset-sm-1">
                 <img style="height: 75px; width: 75px" alt="loading" src="Resource/loading_spinner.gif" />
             </div>
-            <div align="right" class="col-md-12">
+            <div align="right" class="col-md-12 col-xs-12 col-sm-12">
                 <button class="btn btn-success" id="btnBack">Back</button>
             </div>
         </div>

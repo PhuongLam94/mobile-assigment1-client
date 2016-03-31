@@ -67,34 +67,34 @@ and open the template in the editor.
                             ;
                             $.each(data, function (index, friend) {
                                 var $avatar = $("<img/>", {
-                                    class: "col-md-4 avatar",
+                                    class: "col-md-4 col-md-12 col-xs-12 avatar",
                                     src: friend.avatar,
                                     alt: "Picture not found",
                                     style: "height: 100px; width: 100px"
                                 });
                                 var $name = $("<a/>", {
-                                    class: "col-md-6 name",
+                                    class: "col-md-6 col-md-12 col-xs-12 name",
                                     style: "margin-top: 35px; font-size: 25px;"
                                 }).text(friend.name);
-                                
+
                                 var $div = $("<div/>", {
                                     id: friend.id,
-                                    class: "col-md-5 col-md-offset-1 alert alert-success"
+                                    class: "col-md-5 col-md-offset-1 col-md-12 col-xs-12 alert alert-success"
                                 }).append($avatar).append($name);
                                 if (friend.friendStatus === 3) {
                                     var $buttons = $("<div/>", {
-                                        class: "col-md-2 buttons"
+                                        class: "col-md-2 col-md-12 col-xs-12 buttons"
                                     });
                                     var $button = $("<button/>", {
                                         id: "accept-btn",
                                         class: "btn btn-primary",
-                                        style: "margin-top: 15px;"
+                                        style: "margin-top: 10px;"
                                     }).text("Accept");
                                     $($buttons).append($button);
                                     var $button2 = $("<button/>", {
                                         id: "deny-btn",
                                         class: "btn btn-danger",
-                                        style: "margin-top: 5px;"
+                                        style: "margin-top: 10px;"
                                     }).text("Delete");
                                     $($buttons).append($button2);
                                     $div.append($buttons);
@@ -148,10 +148,10 @@ and open the template in the editor.
                 <h3 id="title">List friends</h3>
             </div>
             <div id="friend-area"></div>
-            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1">
+            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1 col-sm-10 col-sm-offset-1">
                 <img style="height: 75px; width: 75px" alt="loading" src="Resource/loading_spinner.gif" />
             </div>
-            <div align="right" class="col-md-12">
+            <div align="right" class="col-md-12 col-xs-12 col-sm-12">
                 <button class="btn btn-success" id="btnBack">Back</button>
             </div>
         </div>

@@ -5,310 +5,321 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
 <html>
-    <head>
-        <title>Take a date - Edit profile</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap-theme.min.css">
-        <link rel="stylesheet" href="font-awesome-4.5.0/css/font-awesome.min.css">
-        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.css" type="text/css"/>
 
-        <script src="js/jquery-1.12.1.min.js"></script>
+<head>
+  <title>Take a date - Edit profile</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="font-awesome-4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.css" type="text/css" />
 
-        <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+  <script src="js/jquery-1.12.1.min.js"></script>
 
-        <script>
-            $().ready(function () {
-                //var users1 = [{id: "1", username: "phuonglam", name: "Lam Minh Phuong", email: "abc@example.com", status: "1"}, {id: "2",username: "huongnguyen", name: "Nguyen Thi Huong", email: "abc2@example.com", status: "1"}, {id: "3", username: "huela", name: "La Van Hue", email: "abc3@example.com", status: "1"}, {id: "4", username: "tienngo", name: "Ngo Thuy Tien", email: "abc4@example.com", status: "1"}];
-                if (!window.sessionStorage.userauth) {
-                    window.location = "home";
+  <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+
+  <script>
+    $().ready(function() {
+      //var users1 = [{id: "1", username: "phuonglam", name: "Lam Minh Phuong", email: "abc@example.com", status: "1"}, {id: "2",username: "huongnguyen", name: "Nguyen Thi Huong", email: "abc2@example.com", status: "1"}, {id: "3", username: "huela", name: "La Van Hue", email: "abc3@example.com", status: "1"}, {id: "4", username: "tienngo", name: "Ngo Thuy Tien", email: "abc4@example.com", status: "1"}];
+      if (!window.sessionStorage.userauth) {
+        window.location = "home";
+      }
+      $("#header").load('private/header.html');
+      var userAuth = window.sessionStorage.getItem("userauth");
+      var userid = window.sessionStorage.getItem("userid");
+
+      $(document).ajaxStart(function() {
+        $(".loading-image").show();
+        $("button").prop("disabled", true);
+      });
+      $(document).ajaxStop(function() {
+        $(".loading-image").hide();
+        $("button").prop("disabled", false);
+      });
+      $.ajax({
+        url: "https://takeadate-ws.herokuapp.com/getservice/getuser/" + userid,
+        type: "GET",
+        xhrFields: {
+          withCredentials: false
+        },
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+        },
+        success: function(data) {
+          if (!data.message.includes("You are not allowed")) {
+            $("#username").val(data.test);
+            $("#email").val(data.email);
+            $("#output").attr("src", data.avatar);
+            $("#name").val(data.name);
+            if (data.gender === 1) {
+              $("#female").prop("checked", true);
+            } else {
+              $("#male").prop("checked", true);
+            }
+            $("#birthday").val(data.birthday);
+            $("#phone-number").val(data.test2);
+            $("#address").val(data.address);
+            $("#height").val(data.height);
+            $("#weight").val(data.weight);
+          } else {
+            window.sessionStorage.clear();
+            window.location = "home";
+          }
+
+        }
+      })
+      $("#btnChangePassword").click(function(event) {
+        event.preventDefault();
+        $(this).hide();
+        $("#change-password").show();
+      });
+      $("#btnSavePassword").click(function(event) {
+        event.preventDefault();
+        var newPwd = $("#new-pwd").val();
+        var renewPwd = $("#re-new-pwd").val();
+        if ($("#old-pwd").val() === "") {
+          // && newPwd !== "" && renewPwd !== "" && renewPwd === newPwd){
+          showMessage("Please enter old password!");
+        } else {
+          if (newPwd === "" || newPwd.length < 6) {
+            showMessage("Invalid new password!");
+          } else {
+            if (renewPwd !== newPwd) {
+              show("New password not match!");
+            } else {
+              var pwdData = {
+                oldPassword: btoa($("#old-pwd").val()),
+                newPassword: btoa(newPwd)
+              };
+              $.ajax({
+                url: "https://takeadate-ws.herokuapp.com/putservice/setPassword",
+                type: "PUT",
+                xhrFields: {
+                  withCredentials: false
+                },
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(pwdData),
+                beforeSend: function(xhr) {
+                  xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
                 }
-                $("#header").load('private/header.html');
-                var userAuth = window.sessionStorage.getItem("userauth");
-                var userid = window.sessionStorage.getItem("userid");
-
-                $(document).ajaxStart(function () {
-                    $(".loading-image").show();
-                    $("button").prop("disabled", true);
-                });
-                $(document).ajaxStop(function () {
-                    $(".loading-image").hide();
-                    $("button").prop("disabled", false);
-                });
-                $.ajax({
-                    url: "https://takeadate-ws.herokuapp.com/getservice/getuser/" + userid,
-                    type: "GET",
-                    xhrFields: {
-                        withCredentials: false
-                    },
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
-                    },
-                    success: function (data) {
-                        if (!data.message.includes("You are not allowed")) {
-                            $("#username").val(data.test);
-                            $("#email").val(data.email);
-                            $("#output").attr("src", data.avatar);
-                            $("#name").val(data.name);
-                            if (data.gender === 1) {
-                                $("#female").prop("checked", true);
-                            } else {
-                                $("#male").prop("checked", true);
-                            }
-                            $("#birthday").val(data.birthday);
-                            $("#phone-number").val(data.test2);
-                            $("#address").val(data.address);
-                            $("#height").val(data.height);
-                            $("#weight").val(data.weight);
-                        } else {
-                            window.sessionStorage.clear();
-                            window.location = "home";
-                        }
-
-                    }
-                })
-                $("#btnChangePassword").click(function (event) {
-                    event.preventDefault();
-                    $(this).hide();
-                    $("#change-password").show();
-                });
-                $("#btnSavePassword").click(function (event) {
-                    event.preventDefault();
-                    var newPwd = $("#new-pwd").val();
-                    var renewPwd = $("#re-new-pwd").val();
-                    if ($("#old-pwd").val() === "") {
-                        // && newPwd !== "" && renewPwd !== "" && renewPwd === newPwd){
-                        $("#msg").text("Please enter old password!");
-                        $("#msg").show();
-                        setTimeout(function () {
-                            $("#msg").hide()
-                        }, 5000)
-                    } else {
-                        if (newPwd === "") {
-                            $("#msg").text("Please enter new password!");
-                            $("#msg").show();
-                            setTimeout(function () {
-                                $("#msg").hide()
-                            }, 5000)
-                        } else {
-                            if (renewPwd !== newPwd) {
-                                $("#msg").text("New password not match!");
-                                $("#msg").show();
-                                setTimeout(function () {
-                                    $("#msg").hide()
-                                }, 5000)
-                            } else {
-                                var pwdData = {
-                                    oldPassword: $("#old-pwd").val(),
-                                    newPassword: newPwd
-                                };
-                                $.ajax({
-                                    url: "https://takeadate-ws.herokuapp.com/putservice/setPassword",
-                                    type: "PUT",
-                                    xhrFields: {
-                                        withCredentials: false
-                                    },
-                                    contentType: "application/json; charset=utf-8",
-                                    data: JSON.stringify(pwdData),
-                                    beforeSend: function (xhr) {
-                                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
-                                    }
-                                }).done(function (data) {
-                                    if (data.message === "Successful") {
-                                        $("#msg").text("Password changed successfully!");
-                                        $("#msg").show();
-                                        setTimeout(function () {
-                                            $("#msg").hide()
-                                        }, 5000)
-                                        $("#change-password").hide();
-                                        $("#btnChangePassword").show();
-                                        $("#change-password input").val("");
-                                    } else {
-                                        $("#msg").text(data.message);
-                                        $("#msg").show();
-                                        setTimeout(function () {
-                                            $("#msg").hide()
-                                        }, 5000)
-                                    }
-                                });
-                            }
-                        }
-                    }
-                })
-                $("#btnSubmit").click(function (event) {
-                    event.preventDefault();
-                    if (checkForm()) {
-                        var userData = {
-                            id: userid,
-                            email: $("#email").val(),
-                            username1: $("#username").val(),
-                            name: $("#name").val(),
-                            status: 1,
-                            test2: $("#phone-number").val(),
-                            address: $("#address").val(),
-                            height: $("#height").val(),
-                            weight: $("#weight").val(),
-                            avatar: $("#output").attr("src"),
-                            gender: $("input[type='radio']:checked").val() === "female" ? 1 : 2,
-                            birthday: $("#birthday").val() === "" ? null : $("#birthday").val(),
-                            message: "",
-                            test: $("#username").val(),
-                        };
-                        if ($("#picture")[0].files.length === 0) {
-                            editUser(userData, userAuth);
-                        } else {
-                            var formData = new FormData();
-                            formData.append("image", $("#picture")[0].files[0]);
-                            $.ajax({
-                                url: "https://api.imgur.com/3/image",
-                                type: "POST",
-                                datatype: "json",
-                                contentType: false,
-                                processData: false,
-                                headers: {
-                                    "Authorization": "Client-ID 142cd168e236fc9"
-                                },
-                                data: formData,
-                                success: function (response) {
-                                    console.log(response);
-                                    userData.avatar = response.data.link;
-                                    editUser(userData, userAuth);
-                                }
-                            });
-                        }
-                    }
-                });
-                $("#btnBack").click(function () {
-                    window.sessionStorage.setItem("currentuserid", userid);
-                    window.location = "profile";
-                })
-
+              }).done(function(data) {
+                if (data.message === "Successful") {
+                show("Password changed successfully!");
+                  $("#change-password").hide();
+                  $("#btnChangePassword").show();
+                  $("#change-password input").val("");
+                } else {
+                  show(data.message);
+                }
+              });
+            }
+          }
+        }
+      })
+      $("#btnSubmit").click(function(event) {
+        event.preventDefault();
+        if (checkForm()) {
+          var userData = {
+            id: userid,
+            email: $("#email").val(),
+            username1: $("#username").val(),
+            name: $("#name").val(),
+            status: 1,
+            test2: $("#phone-number").val(),
+            address: $("#address").val(),
+            height: $("#height").val(),
+            weight: $("#weight").val(),
+            avatar: $("#output").attr("src"),
+            gender: $("input[type='radio']:checked").val() === "female" ? 1 : 2,
+            birthday: $("#birthday").val() === "" ? null : $("#birthday").val(),
+            message: "",
+            test: $("#username").val(),
+          };
+          if ($("#picture")[0].files.length === 0) {
+            editUser(userData, userAuth);
+          } else {
+            var formData = new FormData();
+            formData.append("image", $("#picture")[0].files[0]);
+            $.ajax({
+              url: "https://api.imgur.com/3/image",
+              type: "POST",
+              datatype: "json",
+              contentType: false,
+              processData: false,
+              headers: {
+                "Authorization": "Client-ID 142cd168e236fc9"
+              },
+              data: formData,
+              success: function(response) {
+                console.log(response);
+                userData.avatar = response.data.link;
+                editUser(userData, userAuth);
+              }
             });
-            var checkForm = function () {
-                if ($("#name").val() === "") {
-                    $("#msg").text("Please enter name!");
-                    $("#msg").show();
-                    setTimeout(function () {
-                        $("#msg").hide()
-                    }, 5000)
-                    return false;
-                }
-                return true;
+          }
+        }
+      });
+      $("#btnBack").click(function() {
+        window.sessionStorage.setItem("currentuserid", userid);
+        window.location = "profile";
+      })
+
+    });
+    var showMessage = function(text){
+      $("#msg").text(text);
+      $("#msg").show();
+      setTimeout(function() {
+        $("#msg").hide()
+      }, 5000);
+      document.body.scrollTop = document.documentElement.scrollTop = 0;
+    }
+    var checkForm = function() {
+      if ($("#name").val() === "") {
+      showMessage("Please enter name!");
+        return false;
+      }
+      var phoneValid = true;
+      if ($("#phone-number").val() !== "") {
+        var number = $("#phone-number").val();
+        if (number.match(/\d+/)[0] !== number) {
+          phoneValid = false;
+        } else {
+          if (number.length === 10) {
+            if (number[0] !== "0" || number[1] !== "9") {
+              phoneValid = false;
             }
-            var editUser = function (userData, userAuth) {
-                $.ajax({
-                    url: "https://takeadate-ws.herokuapp.com/putservice/user/edit",
-                    type: "PUT",
-                    xhrFields: {
-                        withCredentials: false
-                    },
-                    contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify(userData),
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
-                    }
-                }).done(function (data) {
-                    if (data.message === "Successful") {
-                        window.alert("Info saved, click OK to go back to profile");
-                        window.location = "home";
-                    }
-                });
+          } else if (number.length === 11) {
+            var phoneArray = ["0120", "0121", "0123", "0124", "0125", "0126", "0127", "0128", "0129", "0162", "0163", "0164", "0165", "0166", "0167", "0168", "0169", "0186", "0188", "0199"];
+            if (phoneArray.indexOf(number.substring(0, 5)) === -1) {
+              phoneValid = false;
             }
-            var openFile = function (event) {
-                var input = event.target;
-                var reader = new FileReader();
-                reader.onload = function () {
-                    var dataURL = reader.result;
-                    var output = document.getElementById('output');
-                    output.src = dataURL;
-                };
-                reader.readAsDataURL(input.files[0]);
-            };
+          } else {
+            phoneValid = false;
+          }
+        }
+      }
 
+      if (!phoneValid) {
+        showMessage("Invalid phone number!");
+        return false;
+      }
+      return true;
+    }
+    var editUser = function(userData, userAuth) {
+      $.ajax({
+        url: "https://takeadate-ws.herokuapp.com/putservice/user/edit",
+        type: "PUT",
+        xhrFields: {
+          withCredentials: false
+        },
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(userData),
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+        }
+      }).done(function(data) {
+        if (data.message === "Successful") {
+          window.alert("Info saved, click OK to go back to profile");
+          window.location = "home";
+        }
+      });
+    }
+    var openFile = function(event) {
+      var input = event.target;
+      var reader = new FileReader();
+      reader.onload = function() {
+        var dataURL = reader.result;
+        var output = document.getElementById('output');
+        output.src = dataURL;
+      };
+      reader.readAsDataURL(input.files[0]);
+    };
+  </script>
+</head>
 
-        </script>
-    </head>
-    <body>
-        <div id="header"></div>
-        <div class="container">
-            <div id="msg" style="color: red; font-weight: bold; display: none" align="center"></div>
-            <div class="jumbotron">
-                <h3 id="title" style="float: left">Edit profile</h3>
-                <div  class="loading-image" align="center" style="float: left">
-                    <img style="height: 40px; width: 40px;padding: 10px;" alt="loading" src="Resource/loading_spinner.gif" />
-                </div>
-            </div>
-            <form role="form">
-                <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" class="form-control" id="username" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email address:</label>
-                    <input type="email" class="form-control" id="email" readonly>
-                </div>
-                <div class="form-group">
-                    <label for="pwd">Password:</label>
-                    <button class="btn btn-warning" id="btnChangePassword">Change password</button>
-                    <div id="change-password" style="display: none; padding: 5px;">
-                        <input type="password" class="form-control" id="old-pwd" placeholder="Type old password">
-                        <input style="margin-top: 5px;" type="password" class="form-control" id="new-pwd" placeholder="Type new password">
-                        <input style="margin-top: 5px;" type="password" class="form-control" id="re-new-pwd" placeholder="Re type new password">
-                        <button style="margin-top: 5px;" class="btn btn-success" id="btnSavePassword">Save</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="picture">Avatar: </label>
-                    <div>
-                        <img id='output' style="width: 91%; margin-top: 2px; height: 85px; width: 85px" class="main_img"
-                             alt="" src=""/>
-                    </div>
-                    <div>
-                        <input type="file" class="form-control" id="picture" accept="image/*" onchange='openFile(event)'>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" class="form-control" id="name">
-                </div>
-                <div class="form-group">
-                    <label for="female">Gender:</label>
-                    <label class="radio-inline"><input type="radio" name="gender" id="female" value="female">Female</label>
-                    <label class="radio-inline"><input type="radio" name="gender" id="male" value="male">Male</label>    
-                </div>
-                <div class="form-group">
-                    <label for="birthday">Birthday:</label>
-                    <input type='date' data-format="dd/MM/yyyy" class="form-control" id="birthday"/>
-
-                </div>
-                <div class="form-group">
-                    <label for="phone-number">Phone number:</label>
-                    <input type="text" class="form-control" id="phone-number">
-                </div>
-                <div class="form-group">
-                    <label for="address">Address:</label>
-                    <input type="text" class="form-control" id="address">
-                </div>
-                <div class="form-group">
-                    <label for="height">Height:</label>
-                    <input type="text" class="form-control" id="height">
-                </div>
-                <div class="form-group">
-                    <label for="weight">Weight</label>
-                    <input type="text" class="form-control" id="weight">
-                </div>
-
-                <div align="right" style="float: right;">
-                    <button class="btn btn-primary" id="btnSubmit">Save</button>
-                    <button class="btn btn-success" id="btnBack">Back</button>
-                </div>
-                <div  class="loading-image" align="center" style="display: none; float: right">
-                    <img style="height: 40px; width: 40px" alt="loading" src="Resource/loading_spinner.gif" />
-                </div>
-            </form>
-
+<body>
+  <div id="header"></div>
+  <div class="container">
+    <div id="msg" style="color: red; font-weight: bold; display: none" align="center"></div>
+    <div class="jumbotron">
+      <h3 id="title" style="float: left">Edit profile</h3>
+      <div class="loading-image" align="center" style="float: left">
+        <img style="height: 40px; width: 40px;padding: 10px;" alt="loading" src="Resource/loading_spinner.gif" />
+      </div>
+    </div>
+    <form role="form">
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" class="form-control" id="username" readonly>
+      </div>
+      <div class="form-group">
+        <label for="email">Email address:</label>
+        <input type="email" class="form-control" id="email" readonly>
+      </div>
+      <div class="form-group">
+        <label for="pwd">Password:</label>
+        <button class="btn btn-warning" id="btnChangePassword">Change password</button>
+        <div id="change-password" style="display: none; padding: 5px;">
+          <input type="password" class="form-control" id="old-pwd" placeholder="Type old password">
+          <input style="margin-top: 5px;" type="password" class="form-control" id="new-pwd" placeholder="Type new password">
+          <input style="margin-top: 5px;" type="password" class="form-control" id="re-new-pwd" placeholder="Re type new password">
+          <button style="margin-top: 5px;" class="btn btn-success" id="btnSavePassword">Save</button>
         </div>
+      </div>
+      <div class="form-group">
+        <label for="picture">Avatar: </label>
+        <div>
+          <img id='output' style="width: 91%; margin-top: 2px; height: 85px; width: 85px" class="main_img" alt="" src="" />
+        </div>
+        <div>
+          <input type="file" class="form-control" id="picture" accept="image/*" onchange='openFile(event)'>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" class="form-control" id="name">
+      </div>
+      <div class="form-group">
+        <label for="female">Gender:</label>
+        <label class="radio-inline">
+          <input type="radio" name="gender" id="female" value="female">Female</label>
+        <label class="radio-inline">
+          <input type="radio" name="gender" id="male" value="male">Male</label>
+      </div>
+      <div class="form-group">
+        <label for="birthday">Birthday:</label>
+        <input type='date' data-format="dd/MM/yyyy" class="form-control" id="birthday" />
 
-    </body>
+      </div>
+      <div class="form-group">
+        <label for="phone-number">Phone number:</label>
+        <input type="text" class="form-control" id="phone-number">
+      </div>
+      <div class="form-group">
+        <label for="address">Address:</label>
+        <input type="text" class="form-control" id="address">
+      </div>
+      <div class="form-group">
+        <label for="height">Height:</label>
+        <input type="number" class="form-control" id="height">
+      </div>
+      <div class="form-group">
+        <label for="weight">Weight</label>
+        <input type="number" class="form-control" id="weight">
+      </div>
+
+      <div align="right" style="float: right;">
+        <button class="btn btn-primary" id="btnSubmit">Save</button>
+        <button class="btn btn-success" id="btnBack">Back</button>
+      </div>
+      <div class="loading-image" align="center" style="display: none; float: right">
+        <img style="height: 40px; width: 40px" alt="loading" src="Resource/loading_spinner.gif" />
+      </div>
+    </form>
+
+  </div>
+
+</body>
+
 </html>

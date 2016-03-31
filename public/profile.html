@@ -5,304 +5,313 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
 <html>
-    <head>
-        <title>Take a date - Profile</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap-theme.min.css">
-        <link rel="stylesheet" href="font-awesome-4.5.0/css/font-awesome.min.css">
+<head>
+  <title>Take a date - Profile</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <script src="js/jquery-1.12.1.min.js"></script>
-        <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
-        <style>
-            td{
-                padding: 10px;
+  <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="font-awesome-4.5.0/css/font-awesome.min.css">
+
+  <script src="js/jquery-1.12.1.min.js"></script>
+  <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+  <style>
+    td {
+      padding: 10px;
+    }
+  </style>
+  <script>
+    $().ready(function() {
+      if (!window.sessionStorage.userauth) {
+        window.location = "home";
+      }
+      var userAuth = window.sessionStorage.getItem("userauth");
+      var userid = window.sessionStorage.getItem("userid");
+      var currentuserid = window.sessionStorage.getItem("currentuserid");
+      $("#header").load('private/header.html');
+      $(document).ajaxStart(function() {
+        $("#loading-image").show();
+        $("button").prop("disabled", true);
+      });
+      $(document).ajaxStop(function() {
+        $("#loading-image").hide();
+        $("button").prop("disabled", false);
+      });
+
+      $("body").on("click", "#edit-btn", function() {
+        window.sessionStorage.setItem("currentuserid", userid);
+        window.location = "edit-profile";
+      });
+
+      $("body").on("click", "#back-btn", function() {
+        window.sessionStorage.setItem("currentuserid", userid);
+        window.location = "profile";
+      });
+      $("body").on("click", "#add-friend-btn", function() {
+        setFriendStatus(userid, currentuserid, 2, userAuth);
+      });
+      $("body").on("click", "#unfriend-btn", function() {
+        setFriendStatus(userid, currentuserid, -1, userAuth);
+      });
+      $("body").on("click", "#accept-btn", function() {
+        setFriendStatus(userid, currentuserid, 1, userAuth);
+      });
+      $("body").on("click", "#deny-btn", function() {
+        setFriendStatus(currentuserid, userid, -1, userAuth);
+      });
+      $("body").on("click", "#cancel-btn", function() {
+        setFriendStatus(userid, currentuserid, -1, userAuth);
+      });
+      $.ajax({
+        url: "https://takeadate-ws.herokuapp.com/getservice/getuser/" + currentuserid,
+        type: "GET",
+        xhrFields: {
+          withCredentials: false
+        },
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+        },
+        success: function(data) {
+          $("#avatar").attr("src", "");
+          $("#avatar").attr("src", data.avatar);
+          $("#title").text(data.name);
+          console.log(data.gender);
+          $("#gender").text(data.gender === 1 ? "Female" : "Male");
+          $("#height").text(data.height + "cm");
+          $("#weight").text(data.weight + "kg");
+          $("#phone-number").text(data.phoneNumber);
+          $("#email").text(data.email);
+          $("#address").text(data.address);
+          $("#birthday").text(formatDate(data.birthday));
+          $("#picture").attr("href", "list-picture");
+          if (currentuserid === userid) {
+            if (!sessionStorage.userstatus) {
+              window.sessionStorage.setItem("userstatus", data.status);
+
             }
+            if (!sessionStorage.username) {
+              window.sessionStorage.setItem("username", data.name);
+              $("#hi").text("Hi, " + sessionStorage.username);
+            }
+            if (data.status === 3) {
+              $("#user-list").show();
+            }
+          }
+          window.sessionStorage.setItem("currentusername", data.name);
+          var username = userAuth.split(":")[0];
+          $("#picture").text(username === data.userName ? "Click here to see your pictures" : "Click here to see " + data.name + "'s pictures");
+          console.log(data.friendStatus);
+          if (data.friendStatus !== 1 && data.friendStatus !== 0) {
+            $("#profile-detail").hide();
+            $("#error").show();
+            $("#not-allowed").text(" " + data.message);
+          }
+          if (data.friendStatus !== 0) {
+            var $button = $("<button/>", {
+              id: "back-btn",
+              style: "margin-right: 5px",
+              class: "btn btn-default"
+            }).text("Back to my profile");
+            $("#buttons").append($button);
+          }
+          switch (data.friendStatus) {
+            case -1:
+              var $button = $("<button/>", {
+                id: "add-friend-btn",
+                class: "btn btn-success"
+              }).text("Add friend");
+              $("#buttons").append($button);
+              break;
+            case 1:
+              var $button = $("<button/>", {
+                id: "unfriend-btn",
+                class: "btn btn-danger"
+              }).text("Unfriend");
+              $("#buttons").append($button);
+              break;
+            case 2:
+              var $button = $("<button/>", {
+                id: "cancel-btn",
+                class: "btn btn-danger"
+              }).text("Cancel friend request");
+              $("#buttons").append($button);
+              break;
+            case 3:
+              var $button = $("<button/>", {
+                id: "accept-btn",
+                class: "btn btn-primary"
+              }).text("Accept friend request");
+              $("#buttons").append($button);
+              var $button2 = $("<button/>", {
+                id: "deny-btn",
+                class: "btn btn-danger"
+              }).text("Delete friend request");
+              $("#buttons").append($button2);
+              break;
+            case 0:
+              var $button = $("<button/>", {
+                id: "edit-btn",
+                class: "btn btn-warning"
+              }).text("Edit");
+              $("#buttons").append($button);;
+          }
 
-        </style>
-        <script>
-            $().ready(function () {
-                if (!window.sessionStorage.userauth) {
-                    window.location = "home";
-                }
-                var userAuth = window.sessionStorage.getItem("userauth");
-                var userid = window.sessionStorage.getItem("userid");
-                var currentuserid = window.sessionStorage.getItem("currentuserid");
-                $("#header").load('private/header.html');
-                $(document).ajaxStart(function () {
-                    $("#loading-image").show();
-                    $("button").prop("disabled", true);
-                });
-                $(document).ajaxStop(function () {
-                    $("#loading-image").hide();
-                    $("button").prop("disabled", false);
-                });
-
-                $("body").on("click", "#edit-btn", function () {
-                    window.sessionStorage.setItem("currentuserid", userid);
-                    window.location = "edit-profile";
-                });
-                
-                $("body").on("click", "#back-btn", function () {
-                    window.sessionStorage.setItem("currentuserid", userid);
-                    window.location = "profile";
-                });
-                $("body").on("click", "#add-friend-btn", function () {
-                    setFriendStatus(userid, currentuserid, 2, userAuth);
-                });
-                $("body").on("click", "#unfriend-btn", function () {
-                    setFriendStatus(userid, currentuserid, -1, userAuth);
-                });
-                $("body").on("click", "#accept-btn", function () {
-                    setFriendStatus(userid, currentuserid, 1, userAuth);
-                });
-                $("body").on("click", "#deny-btn", function () {
-                    setFriendStatus(currentuserid, userid, -1, userAuth);
-                });
-                $("body").on("click", "#cancel-btn", function () {
-                    setFriendStatus(userid, currentuserid, -1, userAuth);
-                });
-                $.ajax({
-                    url: "https://takeadate-ws.herokuapp.com/getservice/getuser/" + currentuserid,
-                    type: "GET",
-                    xhrFields: {
-                        withCredentials: false
-                    },
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
-                    },
-                    success: function (data) {
-                        $("#avatar").attr("src", "");
-                        $("#avatar").attr("src", data.avatar);
-                        $("#title").text(data.name);
-                        console.log(data.gender);
-                        $("#gender").text(data.gender === 1 ? "Female" : "Male");
-                        $("#height").text(data.height + "cm");
-                        $("#weight").text(data.weight + "kg");
-                        $("#phone-number").text(data.phoneNumber);
-                        $("#email").text(data.email);
-                        $("#address").text(data.address);
-                        $("#birthday").text(formatDate(data.birthday));
-                        $("#picture").attr("href", "list-picture");
-                        if (currentuserid===userid && !sessionStorage.userstatus){
-                             window.sessionStorage.setItem("userstatus", data.status);
-                             if (data.status === 3){
-                                 $("#user-list").show();
-                             }
-                        }
-                        var username = userAuth.split(":")[0];
-                        $("#picture").text(username === data.userName ? "Click here to see your pictures" : "Click here to see " + data.name + "'s pictures");
-                        console.log(data.friendStatus);
-                        if (data.friendStatus!==1 && data.friendStatus !== 0){
-                            $("#profile-detail").hide();
-                                $("#error").show();
-                                $("#not-allowed").text(" "+data.message);
-                        }
-                        if (data.friendStatus!==0){
-                            var $button = $("<button/>", {
-                                    id: "back-btn",
-                                    style: "margin-right: 5px",
-                                    class: "btn btn-default"
-                                }).text("Back to my profile");
-                                $("#buttons").append($button);
-                        }
-                        switch (data.friendStatus) {
-                            case -1:
-                                var $button = $("<button/>", {
-                                    id: "add-friend-btn",
-                                    class: "btn btn-success"
-                                }).text("Add friend");
-                                $("#buttons").append($button);
-                                break;
-                            case 1:
-                                var $button = $("<button/>", {
-                                    id: "unfriend-btn",
-                                    class: "btn btn-danger"
-                                }).text("Unfriend");
-                                $("#buttons").append($button);
-                                break;
-                            case 2:
-                                var $button = $("<button/>", {
-                                    id: "cancel-btn",
-                                    class: "btn btn-danger"
-                                }).text("Cancel friend request");
-                                $("#buttons").append($button);
-                                break;
-                            case 3:
-                                var $button = $("<button/>", {
-                                    id: "accept-btn",
-                                    class: "btn btn-primary"
-                                }).text("Accept friend request");
-                                $("#buttons").append($button);
-                                var $button2 = $("<button/>", {
-                                    id: "deny-btn",
-                                    class: "btn btn-danger"
-                                }).text("Delete friend request");
-                                $("#buttons").append($button2);
-                                break;
-                            case 0:
-                                var $button = $("<button/>", {
-                                    id: "edit-btn",
-                                    class: "btn btn-warning"
-                                }).text("Edit");
-                                $("#buttons").append($button);
-                                ;
-                        }
-
-                    }
-                });
+        }
+      });
 
 
-            });
-            var formatDate = function (dateString) {
-                var date = new Date(dateString);
-                var dd = date.getDate();
-                var mm = date.getMonth() + 1;//January is 0! 
-                var yyyy = date.getFullYear();
-                if (dd < 10) {
-                    dd = '0' + dd
-                }
-                if (mm < 10) {
-                    mm = '0' + mm
-                }
-                return dd + '/' + mm + '/' + yyyy;
-            };
-            var setFriendStatus = function (user1, user2, status, userAuth) {
-                $.ajax({
-                    url: "https://takeadate-ws.herokuapp.com/putservice/setfriendstatus/" + user1 + "/" + user2 + "/" + status,
-                    type: "PUT",
-                    xhrFields: {
-                        withCredentials: false
-                    },
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
-                    }
-                }).done(function (data) {
-                    if (data.message === "Successful") {
-                        window.location = "profile";
-                    }
-                });
-            };
-        </script>
+    });
+    var formatDate = function(dateString) {
+      var date = new Date(dateString);
+      var dd = date.getDate();
+      var mm = date.getMonth() + 1; //January is 0!
+      var yyyy = date.getFullYear();
+      if (dd < 10) {
+        dd = '0' + dd
+      }
+      if (mm < 10) {
+        mm = '0' + mm
+      }
+      return dd + '/' + mm + '/' + yyyy;
+    };
+    var setFriendStatus = function(user1, user2, status, userAuth) {
+      $.ajax({
+        url: "https://takeadate-ws.herokuapp.com/putservice/setfriendstatus/" + user1 + "/" + user2 + "/" + status,
+        type: "PUT",
+        xhrFields: {
+          withCredentials: false
+        },
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('Authorization', 'Basic ' + btoa(userAuth));
+        }
+      }).done(function(data) {
+        if (data.message === "Successful") {
+          window.location = "profile";
+        }
+      });
+    };
+  </script>
 
-    </head>
-    <body>
-        <div id="header"></div>
-        <div class="container">
-            <div id="msg" style="color: red; font-weight: bold; display: none" align="center">
-            </div>
-            <div class="jumbotron">
-                <div class="col-md-1">
-                    <img id="avatar" src="Resource/loading_spinner.gif" style="width: 75px; height: 75px;" alt="Picture not found"/>
-                </div>
-                <h3 id="title" class="col-md-6">
+</head>
+
+<body>
+  <div id="header"></div>
+  <div class="container">
+    <div id="msg" style="color: red; font-weight: bold; display: none" align="center">
+    </div>
+    <div class="jumbotron">
+      <div class="col-md-1 col-sm-12 col-xs-12">
+        <img id="avatar" src="Resource/loading_spinner.gif" style="width: 75px; height: 75px;" alt="Picture not found" />
+      </div>
+      <h3 id="title" class="col-md-6 col-sm-6 col-xs-6">
 
                 </h3>
-            </div>
-            <div id="profile-detail" class="col-md-10 col-md-offset-1 alert alert-info">
-                <table>
-                    <tr>
-                        <td>
-                            <i class ="fa fa-venus-mars fa-2x"></i>
-                        </td>
-                        <td>
-                            Gender:
-                        </td>
-                        <td>
-                            <span id="gender"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <i class ="fa fa-birthday-cake fa-2x"></i>
-                        </td>
-                        <td>
-                            Birthday:
-                        </td>
-                        <td>
-                            <span id="birthday"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <i class ="fa fa-mobile fa-2x"></i>
-                        </td>
-                        <td>
-                            Phone number:
-                        </td>
-                        <td>
-                            <span id="phone-number"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <i class ="fa fa-book fa-2x"></i>
-                        </td>
-                        <td>
-                            Address
-                        </td>
-                        <td>
-                            <span id="address"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <i class ="fa fa-male fa-2x"></i>
-                        </td>
-                        <td>
-                            Height:
-                        </td>
-                        <td>
-                            <span id="height"></span>
-                        </td>
-                    </tr>
+    </div>
+    <div id="profile-detail" class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1 col-sm-10 col-sm-offset-1 alert alert-info">
+      <table>
+        <tr>
+          <td class="col-md-2 col-xs-2 col-sm-2">
+            <i class="fa fa-venus-mars fa-2x"></i>
+          </td>
+          <td class="col-md-2 col-xs-2 col-sm-2">
+            Gender:
+          </td>
+          <td class="col-md-8 col-xs-8 col-sm-8">
+            <span id="gender"></span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <i class="fa fa-birthday-cake fa-2x"></i>
+          </td>
+          <td>
+            Birthday:
+          </td>
+          <td>
+            <span id="birthday"></span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <i class="fa fa-mobile fa-2x"></i>
+          </td>
+          <td>
+            Phone number:
+          </td>
+          <td>
+            <span id="phone-number"></span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <i class="fa fa-book fa-2x"></i>
+          </td>
+          <td>
+            Address
+          </td>
+          <td>
+            <span id="address"></span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <i class="fa fa-male fa-2x"></i>
+          </td>
+          <td>
+            Height:
+          </td>
+          <td>
+            <span id="height"></span>
+          </td>
+        </tr>
 
-                    <tr>
-                        <td>
-                            <i class ="fa fa-tachometer fa-2x"></i>
-                        </td>
-                        <td>
-                            Weight:
-                        </td>
-                        <td>
-                            <span id="weight"></span>
-                        </td>
-                    </tr>
+        <tr>
+          <td>
+            <i class="fa fa-tachometer fa-2x"></i>
+          </td>
+          <td>
+            Weight:
+          </td>
+          <td>
+            <span id="weight"></span>
+          </td>
+        </tr>
 
 
 
-                    <tr>
-                        <td>
-                            <i class ="fa fa-envelope fa-2x"></i>
-                        </td>
-                        <td>
-                            Email:
-                        </td>
-                        <td>
-                            <span id="email"></span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <i class ="fa fa-picture-o fa-2x"></i>
-                        </td>
-                        <td colspan="2">
-                            <a id="picture"></a>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <div id="error" style="display: none; margin-top: 20px;" class="col-md-10 col-md-offset-1 alert alert-danger">
-                <i class="fa fa-minus-circle fa-2x" id="not-allowed"></i>
-            </div>
-            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1">
-                <img style="height: 75px; width: 75px" alt="loading" src="Resource/loading_spinner.gif" />
-            </div>
-            <div align="right" id="buttons" class="col-md-10 col-md-offset-1" style="padding-right: -15px">
+        <tr>
+          <td>
+            <i class="fa fa-envelope fa-2x"></i>
+          </td>
+          <td>
+            Email:
+          </td>
+          <td>
+            <span id="email"></span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <i class="fa fa-picture-o fa-2x"></i>
+          </td>
+          <td colspan="2">
+            <a id="picture"></a>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div id="error" style="display: none; margin-top: 20px;" class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1 col-sm-10 col-sm-offset-1 alert alert-danger">
+      <i class="fa fa-minus-circle fa-2x" id="not-allowed"></i>
+    </div>
+    <div id="loading-image" align="center" class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1 col-sm-10 col-sm-offset-1">
+      <img style="height: 75px; width: 75px" alt="loading" src="Resource/loading_spinner.gif" />
+    </div>
+    <div align="right" id="buttons" class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1 col-sm-10 col-sm-offset-1" style="padding-right: -15px">
 
-            </div>
-        </div>
-    </body>
+    </div>
+  </div>
+</body>
+
 </html>

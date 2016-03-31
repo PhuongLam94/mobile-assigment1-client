@@ -83,7 +83,7 @@ and open the template in the editor.
             var openFile = function (event) {
                 var input = event.target;
                 var reader = new FileReader();
-                
+
                 reader.onload = function () {
                     var dataURL = reader.result;
                     var output = document.getElementById('output');
@@ -127,10 +127,10 @@ and open the template in the editor.
                     <input type="text" class="form-control" id="description">
                 </div>
             </div>
-            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1" style="display:none;">
+            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1 col-xs-10 col-sm-offset-1 col-xs-10 col-sm-offset-1" style="display:none;">
                 <img style="height: 75px; width: 75px" alt="loading" src="Resource/loading_spinner.gif" />
             </div>
-            <div align="right" class="col-md-12">
+            <div align="right" class="col-md-12 col-xs-12 col-sm-12">
                 <button class="btn btn-primary" id="btnAdd">Save</button>
                 <button class="btn btn-success" id="btnBack">Back</button>
             </div>

@@ -70,38 +70,47 @@ and open the template in the editor.
         if (sessionStorage.userstatus !== "3"){
             $("#user-list").hide();
         }
+        $("#hi").text("Hi, " + sessionStorage.username);
+
         $(".menu").click(function(event){
             event.preventDefault();
         });
         $("#home").click(function(){
-           window.location = "search"; 
+           window.location = "search";
         });
         $("#my-profile").click(function(){
             sessionStorage.currentuserid = sessionStorage.userid;
-            window.location = "profile"; 
+            sessionStorage.currentusername = sessionStorage.username;
+            window.location = "profile";
         });
         $("#my-picture").click(function(){
             sessionStorage.currentuserid = sessionStorage.userid;
-            window.location = "list-picture"; 
+            sessionStorage.currentusername = sessionStorage.username;
+            window.location = "list-picture";
         });
         $("#friend-list").click(function(){
             sessionStorage.currentuserid = sessionStorage.userid;
-            window.location = "list-friend"; 
+            sessionStorage.currentusername = sessionStorage.username;
+            window.location = "list-friend";
         });
         $("#user-list").click(function(){
             sessionStorage.currentuserid = sessionStorage.userid;
-            window.location = "list-user"; 
+            sessionStorage.currentusername = sessionStorage.username;
+            window.location = "list-user";
         });
         $("#about").click(function(){
-            window.location = "about"; 
+            window.location = "about";
         });
         $("#sign-out").click(function(){
             sessionStorage.clear();
-            window.location = "home"; 
+            window.location = "home";
         });
     })
 </script>
 <ul class="topnav">
+  <li>
+    <a class="menu" id="hi">ab</a>
+  </li>
     <li><a class="menu" id="home">Search</a></li>
     <li><a class="menu" id="my-profile">My Profile</a></li>
     <li><a class="menu" id="my-picture">My Pictures</a></li>
@@ -113,4 +122,3 @@ and open the template in the editor.
         <a href="javascript:void(0);" onclick="myFunction()">&#9776;</a>
     </li>
 </ul>
-

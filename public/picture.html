@@ -22,6 +22,7 @@ and open the template in the editor.
                     window.location = "home";
                 }
                 $("#header").load('private/header.html');
+                $("#title").text("Picture of "+ sessionStorage.currentusername);
                 var userAuth = window.sessionStorage.getItem("userauth");
                 var userid = window.sessionStorage.getItem("userid");
                 var pictureid = window.sessionStorage.getItem("pictureid");
@@ -64,9 +65,7 @@ and open the template in the editor.
                                 $("#btnRight").show();
                             }
                             $("#picture").attr("src", data.content);
-                            $("#description").text(data.description);
-
-                        }
+                            $("#description").text(data.description);}
                     }
                 });
                 $("#btnBack").click(function () {
@@ -99,7 +98,15 @@ and open the template in the editor.
                     sessionStorage.pictureid = $(this).attr("picture-id");
                     window.location = "picture";
                 });
+                $("#btnLeft").on("tap", function () {
+                    sessionStorage.pictureid = $(this).attr("picture-id");
+                    window.location = "picture";
+                });
                 $("#btnRight").click(function () {
+                    sessionStorage.pictureid = $(this).attr("picture-id");
+                    window.location = "picture";
+                });
+                $("#btnRight").on("tap", function () {
                     sessionStorage.pictureid = $(this).attr("picture-id");
                     window.location = "picture";
                 });
@@ -119,23 +126,23 @@ and open the template in the editor.
             <div class="jumbotron">
                 <h3 id="title">Picture</h3>
             </div>
-            <div id="picture-area" class="col-md-12">
+            <div id="picture-area" class="col-md-12 col-xs-12 col-sm-12">
 
-                <div class="col-md-12">
-                    <div class="col-md-1 button">
+                <div class="col-md-12 col-xs-12 col-sm-12">
+                    <div class="col-md-1 col-xs-2 col-sm-1 button">
                         <button  style='display: none;' id="btnLeft" class="btn btn-default"><span class="glyphicon glyphicon-arrow-left"></span></button>
                     </div>
-                    <div class="col-md-10" align="center">
-                        <img id="picture" style="height: 50%; width: 50%;" src="Resource/loading_spinner.gif" alt="" />
+                    <div class="col-md-10 col-xs-8 col-sm-10" align="center">
+                        <img id="picture" style="width: 100%;" src="Resource/loading_spinner.gif" alt="" />
                     </div>
-                    <div class="col-md-1 button">
+                    <div class="col-md-1 col-xs-2 col-sm-1 button">
                         <button  style='display: none;' id="btnRight" class="btn btn-default"><span class="glyphicon glyphicon-arrow-right"></span></button>
                     </div>
                 </div>
 
             </div>
-            <div id="description" class="col-md-12" style="text-align: center; padding: 10px;"></div>
-            <div id="buttons" align="right" style="float: right;">
+            <div id="description" class="col-md-12 col-xs-12 col-sm-12" style="text-align: center; padding: 10px;"></div>
+            <div id="buttons" align="right" style="float: right; margin-top: 10px">
                 <button id="btnBack" class="btn btn-primary">Back</button>
                 <button id="btnDelete" class="btn btn-danger" style="display:none;">Delete</button>
             </div>

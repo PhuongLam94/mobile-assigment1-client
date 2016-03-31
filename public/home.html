@@ -74,11 +74,11 @@
                         withCredentials: false
                     },
                     beforeSend: function (xhr) {
-                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa($("#username").val() + ':' + $("#pwd").val()));
+                        xhr.setRequestHeader('Authorization', 'Basic ' + btoa($("#username").val() + ':' + btoa($("#pwd").val())));
                     },
                     success: function (data) {
                         if (data.message === "Successful") {
-                            window.sessionStorage.setItem("userauth", $("#username").val() + ':' + $("#pwd").val());
+                            window.sessionStorage.setItem("userauth", $("#username").val() + ':' + btoa($("#pwd").val()));
                             window.sessionStorage.setItem("userid", data.userid);
                             window.sessionStorage.setItem("currentuserid", data.userid);
                             window.location = "profile";

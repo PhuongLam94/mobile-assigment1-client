@@ -15,7 +15,7 @@ and open the template in the editor.
 
         <script src="js/jquery-1.12.1.min.js"></script>
         <script src="bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
-        
+
         <style>
             .picture-tag:hover{
                 cursor: pointer;
@@ -27,6 +27,7 @@ and open the template in the editor.
                 if (!window.sessionStorage.userauth) {
                     window.location = "home";
                 }
+                $("#title").text("List pictures of "+ sessionStorage.currentusername);
                 $("#header").load('private/header.html');
                 var userAuth = window.sessionStorage.getItem("userauth");
                 var userid = window.sessionStorage.getItem("userid");
@@ -72,7 +73,7 @@ and open the template in the editor.
                                 console.log(picture);
                                 var $tag = $("<img/>", {
                                     id: picture.id,
-                                    class: "col-md-4 col-sm-6 col-xs-8 col-xs-off-set-2 picture-tag",
+                                    class: "col-md-4 col-sm-4 col-xs-4 picture-tag",
                                     src: picture.content,
                                     alt: "Picture not found",
                                     style: "height: 200px; width: 300px"
@@ -83,6 +84,10 @@ and open the template in the editor.
                     }
                 });
                 $("body").on("click", ".picture-tag", function(){
+                    sessionStorage.pictureid=$(this).attr("id");
+                    window.location = "picture";
+                })
+                $("body").on("tap", ".picture-tag", function(){
                     sessionStorage.pictureid=$(this).attr("id");
                     window.location = "picture";
                 })
@@ -105,10 +110,10 @@ and open the template in the editor.
                 <h3 id="title">List pictures</h3>
             </div>
             <div id="picture-area"></div>
-            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1">
+            <div  id="loading-image" align="center" class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1 col-sm-10 col-sm-offset-1">
                 <img style="height: 75px; width: 75px" alt="loading" src="Resource/loading_spinner.gif" />
             </div>
-            <div align="right" class="col-md-12">
+            <div align="right" class="col-md-12 col-sm-12 col-xs-12">
                 <button class="btn btn-primary" id="btnAdd" style="display:none;">Add new picture</button>
                 <button class="btn btn-success" id="btnBack">Back</button>
             </div>
