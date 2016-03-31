@@ -86,7 +86,7 @@ and open the template in the editor.
             showMessage("Invalid new password!");
           } else {
             if (renewPwd !== newPwd) {
-              show("New password not match!");
+              showMessage("New password not match!");
             } else {
               var pwdData = {
                 oldPassword: btoa($("#old-pwd").val()),
@@ -105,12 +105,12 @@ and open the template in the editor.
                 }
               }).done(function(data) {
                 if (data.message === "Successful") {
-                show("Password changed successfully!");
+                showMessage("Password changed successfully!");
                   $("#change-password").hide();
                   $("#btnChangePassword").show();
                   $("#change-password input").val("");
                 } else {
-                  show(data.message);
+                  showMessage(data.message);
                 }
               });
             }
